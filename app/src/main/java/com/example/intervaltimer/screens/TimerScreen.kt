@@ -99,7 +99,11 @@ fun TimerScreen(
                         intervalListVal = intervalListVal,
                         currentIndex = currentIndex
                     ) {
-                        currentIndex += 1
+                        if(!it) {
+                            currentIndex += 1
+                        } else {
+                            currentIndex = 0
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(40.dp))
@@ -137,9 +141,10 @@ private fun TimerDisplay(
     currentIndex: Int,
     modifier: Modifier = Modifier,
     strokeWidth: Dp = 7.dp,
-    incrementIndex: () -> Unit = {}
+    incrementIndex: (Boolean) -> Unit = {}
 ) {
     var currentTimeMax = intervalListVal[currentIndex]
+    val size = intervalListVal.size
 
 
     var oldIndex by remember {
@@ -179,8 +184,12 @@ private fun TimerDisplay(
             currentTime -= 100L
             value = currentTime / currentTimeMax.toFloat()
         } else if (currentTime <= 0) {
-            incrementIndex()
-
+            if(currentIndex < size -1 ) {
+                incrementIndex(false)
+            } else{
+                incrementIndex(true)
+                isTimerRunning = false
+            }
             currentTime = intervalListVal[currentIndex]
             currentTimeMax = intervalListVal[currentIndex]
             oldIndex = currentIndex
