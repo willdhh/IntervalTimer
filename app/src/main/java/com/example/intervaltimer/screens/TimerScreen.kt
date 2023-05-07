@@ -50,7 +50,7 @@ fun TimerScreen(
     val cycle = timer.cycle!!
 
     val intervalListName: MutableList<String> = mutableListOf()
-    var intervalListVal: MutableList<Long> = mutableListOf()
+    val intervalListVal: MutableList<Long> = mutableListOf()
 
     if (warmup != 0L) {
         intervalListName.add("Warm Up")
@@ -58,11 +58,11 @@ fun TimerScreen(
     }
     for (i in 1..cycle) {
         if (high != 0L) {
-            intervalListName.add("High Intensity $i / ${cycle}")
+            intervalListName.add("High Intensity $i / $cycle")
             intervalListVal.add(high)
         }
         if (low != 0L) {
-            intervalListName.add("LowIntensity $i / ${cycle}")
+            intervalListName.add("LowIntensity $i / $cycle")
             intervalListVal.add(low)
         }
 

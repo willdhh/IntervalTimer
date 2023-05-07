@@ -39,7 +39,7 @@ class MainViewModel @Inject constructor(private val timerRepository: TimerReposi
 
     override fun collectCurr() {
         ioScope.launch {
-            timerListFlow.collect() {
+            timerListFlow.collect {
                 timerList = it
             }
         }
