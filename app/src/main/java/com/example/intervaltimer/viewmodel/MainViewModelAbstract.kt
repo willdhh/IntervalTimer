@@ -14,15 +14,18 @@ interface MainViewModelAbstract {
     val timerList: List<TimerEntity>
     val timerListFlow: Flow<List<TimerEntity>>
 
+
     fun collectCurr()
 
+    suspend fun getTimer(key: Long?): TimerEntity
     fun addTimer(timer: TimerEntity)
     fun removeTimer(timer: TimerEntity)
     fun deleteAll()
 }
 
 @HiltViewModel
-class MainViewModel @Inject constructor(private val timerRepository: TimerRepository) : ViewModel(),
+class MainViewModel @Inject constructor(private val timerRepository: TimerRepository
+) : ViewModel(),
     MainViewModelAbstract {
 
     private val ioScope = CoroutineScope(Dispatchers.IO)
@@ -33,12 +36,18 @@ class MainViewModel @Inject constructor(private val timerRepository: TimerReposi
     init {
         collectCurr()
     }
-    override fun collectCurr () {
+
+    override fun collectCurr() {
         ioScope.launch {
-            timerListFlow.collect(){
+            timerListFlow.collect() {
                 timerList = it
             }
         }
+    }
+
+    override suspend fun getTimer(key: Long?): TimerEntity {
+
+        return timerRepository.getTimer(key)
     }
 
     override fun addTimer(timer: TimerEntity) {

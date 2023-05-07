@@ -8,6 +8,8 @@ class TimerRepository(private val timerDao: TimerDao) {
 
     suspend fun insert(timer: TimerEntity) = timerDao.insert(timer)
 
+    suspend fun getTimer(key: Long?): TimerEntity = timerDao.getTimer(key)
+
     suspend fun delete(timer: TimerEntity) = timerDao.delete(timer)
 
     suspend fun deleteAll() = timerDao.deleteAll()

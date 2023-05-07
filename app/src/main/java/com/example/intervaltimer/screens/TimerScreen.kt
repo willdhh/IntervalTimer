@@ -2,6 +2,7 @@ package com.example.intervaltimer.screens
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -21,20 +22,59 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.intervaltimer.data.TimerEntity
 import com.example.intervaltimer.screens.components.CancelButton
 import com.example.intervaltimer.screens.components.TopText
 import com.example.intervaltimer.viewmodel.MainViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import java.lang.Math.*
-
 
 
 @Composable
 fun TimerScreen(
-    totalTime: Long,
+    uid: String?,
     navController: NavController,
     mainViewModel: MainViewModel
 ) {
+    var timer: TimerEntity
+    runBlocking {
+        timer = mainViewModel.getTimer(uid?.toLong())
+    }
+
+    val title = timer.timerTitle
+    val warmup = timer.warmup!!
+    val high = timer.highIntensity!!
+    val low = timer.lowIntensity!!
+    val cool = timer.coolDown!!
+    val cycle = timer.cycle!!
+
+    val intervalListName: MutableList<String> = mutableListOf()
+    var intervalListVal: List<Long> = mutableListOf()
+
+    if (warmup != 0L) {
+        intervalListName.add("Warm Up")
+        intervalListVal = listOf(warmup)
+    }
+    for (i in 1..cycle) {
+        if (high != 0L) {
+            intervalListName += listOf("High Intensity $i / ${cycle}")
+            intervalListVal += listOf(high)
+        }
+        if (low != 0L) {
+            intervalListName += listOf("LowIntensity $i / ${cycle}")
+            intervalListVal += listOf(low)
+        }
+
+    }
+    if (cool != 0L) {
+        intervalListName += listOf("Cool Down")
+        intervalListVal += listOf(cool)
+    }
+
+    var currentIndex by remember {
+        mutableStateOf(0)
+    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -43,7 +83,8 @@ fun TimerScreen(
     ) {
         Column {
 
-            TopBarLabel()
+
+            TopBarLabel(title)
             Column(
                 modifier = Modifier
                     .fillMaxHeight()
@@ -54,11 +95,22 @@ fun TimerScreen(
                     verticalArrangement = Arrangement.Center
                 ) {
 
-                    TimerDisplay(totalTime)
+                    TimerDisplay(
+                        intervalListVal = intervalListVal,
+                        currentIndex = currentIndex
+                    ) {
+                        currentIndex += 1
+                    }
 
                     Spacer(modifier = Modifier.height(40.dp))
 
-                    CurrentCycleIndicator()
+                    CurrentCycleIndicator(
+                        size = intervalListVal.size,
+                        currentIndex = currentIndex,
+                        intervalListName = intervalListName
+                    ) {
+                        currentIndex = it
+                    }
 
                     Spacer(modifier = Modifier.height(80.dp))
                 }
@@ -81,31 +133,58 @@ fun TimerScreen(
 
 @Composable
 private fun TimerDisplay(
-    totalTime: Long,
+    intervalListVal: List<Long>,
+    currentIndex: Int,
     modifier: Modifier = Modifier,
-    strokeWidth: Dp = 7.dp
+    strokeWidth: Dp = 7.dp,
+    incrementIndex: () -> Unit = {}
 ) {
+    var currentTimeMax = intervalListVal[currentIndex]
+
+
+    var oldIndex by remember {
+        mutableStateOf(0)
+    }
 
     var value by remember {
         mutableStateOf(1f)
     }
 
     var currentTime by remember {
-        mutableStateOf(totalTime)
+        mutableStateOf(currentTimeMax)
     }
 
     var isTimerRunning by remember {
         mutableStateOf(false)
     }
 
+
+    LaunchedEffect(key1 = oldIndex, key2 = currentIndex) {
+        if (currentIndex != oldIndex) {
+
+            currentTime = intervalListVal[currentIndex]
+            currentTimeMax = intervalListVal[currentIndex]
+            oldIndex = currentIndex
+            value = 1f
+        }
+    }
+
     LaunchedEffect(
         key1 = currentTime,
         key2 = isTimerRunning
     ) {
+
         if (currentTime > 0 && isTimerRunning) {
-            delay(100L)
+            delay(83L)
             currentTime -= 100L
-            value = currentTime / totalTime.toFloat()
+            value = currentTime / currentTimeMax.toFloat()
+        } else if (currentTime <= 0) {
+            incrementIndex()
+
+            currentTime = intervalListVal[currentIndex]
+            currentTimeMax = intervalListVal[currentIndex]
+            oldIndex = currentIndex
+            value = 1f
         }
     }
 
@@ -151,7 +230,7 @@ private fun TimerDisplay(
             Button(
                 onClick = {
                     if (currentTime <= 0L) {
-                        currentTime = totalTime
+                        currentTime = currentTimeMax
                         isTimerRunning = true
                     } else {
                         isTimerRunning = !isTimerRunning
@@ -178,21 +257,39 @@ private fun TimerDisplay(
 
 
 @Composable
-private fun TopBarLabel() {
+private fun TopBarLabel(topLabel: String) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(Color.White),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        TopText(text = "Custom Name")
+        TopText(text = topLabel)
         Divider()
 
     }
 }
 
 @Composable
-private fun CurrentCycleIndicator() {
+private fun CurrentCycleIndicator(
+    size: Int,
+    currentIndex: Int,
+    intervalListName: List<String>,
+    clickAction: (Int) -> Unit = {}
+) {
+    var index by remember {
+        mutableStateOf(0)
+    }
+    var label by remember {
+        mutableStateOf(intervalListName[index])
+    }
+
+    LaunchedEffect(key1 = index, key2 = currentIndex) {
+        label = intervalListName[index]
+        if (index != currentIndex) {
+            index = currentIndex
+        }
+    }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -206,11 +303,18 @@ private fun CurrentCycleIndicator() {
         Icon(
             imageVector = Icons.Default.KeyboardArrowLeft,
             contentDescription = "Back Arrow",
-            modifier = Modifier.size(40.dp)
+            modifier = Modifier
+                .size(40.dp)
+                .clickable {
+                    if (index > 0) {
+                        index--
+                    }
+                    clickAction(index)
+                }
         )
 
         Text(
-            text = "High Intensity 1/10",
+            text = label,
             modifier = Modifier.weight(1f),
             fontSize = 24.sp,
             textAlign = TextAlign.Center
@@ -219,7 +323,14 @@ private fun CurrentCycleIndicator() {
         Icon(
             imageVector = Icons.Default.KeyboardArrowRight,
             contentDescription = "Back Arrow",
-            modifier = Modifier.size(40.dp)
+            modifier = Modifier
+                .size(40.dp)
+                .clickable {
+                    if (index < size - 1) {
+                        index++
+                    }
+                    clickAction(index)
+                }
         )
     }
 }

@@ -27,9 +27,10 @@ fun Navigation(mainViewModel: MainViewModel) {
         composable("create") {
             AddNewTimerScreen(navController, mainViewModel = mainViewModel)
         }
-        composable("timer") {
+        composable("timer/{uid}") {
+            val uid = it.arguments?.getString("uid")
             TimerScreen(
-                totalTime = 100000L,
+                uid = uid,
                 navController = navController,
                 mainViewModel = mainViewModel
             )

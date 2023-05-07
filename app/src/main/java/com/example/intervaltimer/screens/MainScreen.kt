@@ -1,6 +1,7 @@
 package com.example.intervaltimer.screens
 
 
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
@@ -60,6 +61,7 @@ fun MainScreen(
 
                         val timer = timerList[index]
                         val totalTime = timer.warmup!! + timer.coolDown!! + (timer.cycle!! * (timer.highIntensity!! + timer.lowIntensity!!))
+                        val uid = timer.uid.toString()
 
                         val title = if (timer.timerTitle != "") {
                                         timer.timerTitle
@@ -79,7 +81,7 @@ fun MainScreen(
                             }
 
                         ) {
-                            navController.navigate("timer")
+                            navController.navigate("timer/$uid")
                         }
 
                         Spacer(modifier = Modifier.height(20.dp))

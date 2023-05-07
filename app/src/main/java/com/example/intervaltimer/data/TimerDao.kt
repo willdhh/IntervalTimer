@@ -14,6 +14,9 @@ interface TimerDao {
     @Insert
     suspend fun insert(vararg timer: TimerEntity)
 
+    @Query("SELECT * FROM timer WHERE uid = :key")
+    suspend fun getTimer(key:Long?): TimerEntity
+
     @Delete
     suspend fun delete(timer: TimerEntity)
 
