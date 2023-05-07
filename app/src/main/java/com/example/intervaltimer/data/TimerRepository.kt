@@ -1,8 +1,5 @@
 package com.example.intervaltimer.data
 
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 
 class TimerRepository(private val timerDao: TimerDao) {
@@ -12,4 +9,6 @@ class TimerRepository(private val timerDao: TimerDao) {
     suspend fun insert(timer: TimerEntity) = timerDao.insert(timer)
 
     suspend fun delete(timer: TimerEntity) = timerDao.delete(timer)
+
+    suspend fun deleteAll() = timerDao.deleteAll()
 }

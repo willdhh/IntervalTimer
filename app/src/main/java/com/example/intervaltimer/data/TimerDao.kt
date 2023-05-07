@@ -16,4 +16,7 @@ interface TimerDao {
 
     @Delete
     suspend fun delete(timer: TimerEntity)
+
+    @Query("DELETE FROM timer")
+    suspend fun deleteAll()
 }

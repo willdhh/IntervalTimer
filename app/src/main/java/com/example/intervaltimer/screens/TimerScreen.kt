@@ -17,32 +17,23 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.intervaltimer.screens.components.CancelButton
 import com.example.intervaltimer.screens.components.TopText
+import com.example.intervaltimer.viewmodel.MainViewModel
 import kotlinx.coroutines.delay
 import java.lang.Math.*
 
-
-@Preview
-@Composable
-fun PreviewTimer() {
-    TimerScreen(
-        10L * 1000L,
-        rememberNavController()
-    )
-}
 
 
 @Composable
 fun TimerScreen(
     totalTime: Long,
-    navController: NavController
+    navController: NavController,
+    mainViewModel: MainViewModel
 ) {
 
     Surface(
