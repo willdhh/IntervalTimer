@@ -10,28 +10,52 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-interface MainViewModelAbstract{
+interface MainViewModelAbstract {
+    val timerList: List<TimerEntity>
     val timerListFlow: Flow<List<TimerEntity>>
 
-    fun addTimer (timer: TimerEntity)
-    fun removeTimer (timer: TimerEntity)
+    fun collectCurr()
+
+    fun addTimer(timer: TimerEntity)
+    fun removeTimer(timer: TimerEntity)
+    fun deleteAll()
 }
 
 @HiltViewModel
-class MainViewModel @Inject constructor(private val timerRepository: TimerRepository): ViewModel(), MainViewModelAbstract {
+class MainViewModel @Inject constructor(private val timerRepository: TimerRepository) : ViewModel(),
+    MainViewModelAbstract {
 
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
     override val timerListFlow: Flow<List<TimerEntity>> = timerRepository.getAllFlow()
+    override var timerList: List<TimerEntity> = emptyList()
 
-    override fun addTimer (timer: TimerEntity) {
-        ioScope. launch {
+    init {
+        collectCurr()
+    }
+    override fun collectCurr () {
+        ioScope.launch {
+            timerListFlow.collect(){
+                timerList = it
+            }
+        }
+    }
+
+    override fun addTimer(timer: TimerEntity) {
+        ioScope.launch {
             timerRepository.insert(timer)
         }
     }
-    override fun removeTimer (timer: TimerEntity) {
+
+    override fun removeTimer(timer: TimerEntity) {
         ioScope.launch {
             timerRepository.delete(timer)
+        }
+    }
+
+    override fun deleteAll() {
+        ioScope.launch {
+            timerRepository.deleteAll()
         }
     }
 }

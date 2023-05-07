@@ -8,11 +8,10 @@ import com.example.intervaltimer.screens.AddNewTimerScreen
 import com.example.intervaltimer.screens.MainScreen
 import com.example.intervaltimer.screens.TimerScreen
 import com.example.intervaltimer.viewmodel.MainViewModel
-import com.example.intervaltimer.viewmodel.MainViewModelAbstract
 
 
 @Composable
-fun Navigation(mainViewModel: MainViewModelAbstract) {
+fun Navigation(mainViewModel: MainViewModel) {
     val navController = rememberNavController()
     NavHost(
         navController = navController,
@@ -31,7 +30,8 @@ fun Navigation(mainViewModel: MainViewModelAbstract) {
         composable("timer") {
             TimerScreen(
                 totalTime = 100000L,
-                navController = navController
+                navController = navController,
+                mainViewModel = mainViewModel
             )
         }
     }

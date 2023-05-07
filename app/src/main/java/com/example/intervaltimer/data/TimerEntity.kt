@@ -21,6 +21,9 @@ data class TimerEntity(
     @ColumnInfo(name = "low_intensity")
     val lowIntensity: Long?,
 
+    @ColumnInfo(name = "cycle")
+    val cycle: Int?,
+
     @ColumnInfo(name = "cooldown")
     val coolDown: Long?
 

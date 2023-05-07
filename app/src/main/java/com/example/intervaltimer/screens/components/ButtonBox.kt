@@ -1,6 +1,7 @@
 package com.example.intervaltimer.screens.components
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -11,11 +12,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.intervaltimer.navigation.Screen
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ButtonBox(
     modifier: Modifier = Modifier,
@@ -23,18 +24,28 @@ fun ButtonBox(
     textLeft: String,
     textRight: String = "",
     color: Color = Color(0xFFE7EFFC),
+    longClickAction: () -> Unit = {},
     navigate: () -> Unit
 ) {
     Button(
         modifier = modifier
             .height(40.dp)
-            .clip(shape = RoundedCornerShape(corner = CornerSize(10.dp))),
+            .clip(shape = RoundedCornerShape(corner = CornerSize(10.dp)))
+            ,
         colors = ButtonDefaults.buttonColors(color),
-        onClick = navigate,
-        elevation = ButtonDefaults.elevation(0.dp)
-    ) {
+        onClick = {},
+        elevation = ButtonDefaults.elevation(0.dp),
+
+
+        ) {
+
         Row(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .combinedClickable(
+                    onLongClick = longClickAction,
+                    onClick = navigate
+                ),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
@@ -61,16 +72,16 @@ fun CancelButton(
 ) {
 
 
-        ButtonBox(
-            displaySecondText = false,
-            textLeft = "Cancel",
-            textRight = "",
-            color = Color(0xFFFCE7E7)
-        ) {
-            navController.navigate(Screen.MainScreen.route){
-                popUpTo(0)
-            }
+    ButtonBox(
+        displaySecondText = false,
+        textLeft = "Cancel",
+        textRight = "",
+        color = Color(0xFFFCE7E7)
+    ) {
+        navController.navigate(Screen.MainScreen.route) {
+            popUpTo(0)
         }
+    }
 
 }
 
